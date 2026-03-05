@@ -41,11 +41,12 @@ public class MercadoLivreServiceImpl implements MercadoLivreService{
 
             if (matcher.find()) {
                 return "MLB" + matcher.group(1);
+            }else {
+            	return "MLB12345678";	
             }
         }catch (Exception e) {
-        	return "MLB";
+        	return "MLB12345678";
 		}
-		return link;
 
     }
 
