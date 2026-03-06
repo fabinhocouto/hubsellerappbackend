@@ -23,7 +23,7 @@ public class AtualizarVisitasJob {
     private final ProdutoAnaliseRepository produtoRepository;
     private final MercadoLivreClient mercadoLivreClient;
     
-    //@Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 30 6 * * *")
     public void atualizarVisitas() {
 
         String token = mercadoLivreClient.getValidAccessToken();
