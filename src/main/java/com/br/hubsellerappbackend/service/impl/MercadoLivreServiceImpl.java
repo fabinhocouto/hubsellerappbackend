@@ -34,20 +34,29 @@ public class MercadoLivreServiceImpl implements MercadoLivreService{
 	}
 	
 	private String extrairItemId(String link) {
+	    try {
 
-        try{
-        	Pattern pattern = Pattern.compile("MLB-?(\\d+)");
-        	Matcher matcher = pattern.matcher(link);
+	        // Primeiro tenta pegar do wid=
+	        Pattern widPattern = Pattern.compile("wid=(MLB\\d+)");
+	        Matcher widMatcher = widPattern.matcher(link);
 
-            if (matcher.find()) {
-                return "MLB" + matcher.group(1);
-            }else {
-            	return "MLB12345678";	
-            }
-        }catch (Exception e) {
-        	return "MLB12345678";
-		}
+	        if (widMatcher.find()) {
+	            return widMatcher.group(1);
+	        }
 
-    }
+	        // Se não tiver wid, pega MLB que NÃO venha após /p/
+	        Pattern pattern = Pattern.compile("(?<!/p/)MLB(\\d+)");
+	        Matcher matcher = pattern.matcher(link);
+
+	        if (matcher.find()) {
+	            return "MLB" + matcher.group(1);
+	        }
+
+	        return "MLB12345678";
+
+	    } catch (Exception e) {
+	        return "MLB12345678";
+	    }
+	}
 
 }

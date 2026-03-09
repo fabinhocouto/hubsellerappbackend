@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -42,7 +43,7 @@ public class UsuarioController {
     @GetMapping(path = "/find-all-resumido")
     @CrossOrigin
     public ResponseEntity<List<UsuarioResumidoDTO>> recuperarUsuarioResumido(){
-    	List<Usuario> lstUsuario = repository.findAll();
+    	List<Usuario> lstUsuario = repository.findAll(Sort.by(Sort.Direction.ASC, "nomeCompleto"));
     	List<UsuarioResumidoDTO> lstUsuarioResumidoDTO = new ArrayList<UsuarioResumidoDTO>();
     	for (Usuario usuario : lstUsuario) {
 			UsuarioResumidoDTO usuarioResumido = new UsuarioResumidoDTO();
