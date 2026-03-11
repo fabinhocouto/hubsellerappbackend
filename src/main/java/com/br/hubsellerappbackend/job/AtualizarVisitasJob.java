@@ -11,6 +11,7 @@ import com.br.hubsellerappbackend.client.MercadoLivreClient;
 import com.br.hubsellerappbackend.model.VisitaReferencia;
 import com.br.hubsellerappbackend.repository.ProdutoAnaliseRepository;
 import com.br.hubsellerappbackend.service.MercadoLivreService;
+import com.br.hubsellerappbackend.utils.ItemUtil;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class AtualizarVisitasJob {
         for (var produto : produtos) {
             for (var referencia : produto.getReferencias()) {
 
-                String itemId = extrairItemId(referencia.getLinkProduto());
+                String itemId = ItemUtil.extrairItemId(referencia.getLinkProduto());
                 Integer visitas = mercadoLivreClient.buscarVisitas(token, itemId);
                 Integer visitasUltimos15Dias = mercadoLivreClient.buscarVisitasUltimosQuinzeDias(token, itemId);
                 referencia.setVisitasUltimosQuinzeDias(visitasUltimos15Dias);
@@ -50,29 +51,4 @@ public class AtualizarVisitasJob {
         produtoRepository.saveAll(produtos);
     }
 
-    private String extrairItemId(String link) {
-        try {
-
-            // Primeiro tenta pegar do wid=
-            Pattern widPattern = Pattern.compile("wid=(MLB\\d+)");
-            Matcher widMatcher = widPattern.matcher(link);
-
-            if (widMatcher.find()) {
-                return widMatcher.group(1);
-            }
-
-            // Se não tiver wid, pega MLB que NÃO venha após /p/
-            Pattern pattern = Pattern.compile("(?<!/p/)MLB(\\d+)");
-            Matcher matcher = pattern.matcher(link);
-
-            if (matcher.find()) {
-                return "MLB" + matcher.group(1);
-            }
-
-            return "MLB12345678";
-
-        } catch (Exception e) {
-            return "MLB12345678";
-        }
-    }
 }

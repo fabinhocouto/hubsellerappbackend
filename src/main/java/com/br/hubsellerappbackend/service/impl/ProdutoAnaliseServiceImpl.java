@@ -51,6 +51,10 @@ public class ProdutoAnaliseServiceImpl implements ProdutoAnaliseService{
 	            );
 	        }
 	    });
+	    
+	    if (produto.getProdutoAvaliacao() != null) {
+	        produto.getProdutoAvaliacao().setProdutoAnalise(produto);
+	    }
 
 	    return produtoAnaliseMapper.toDTO(repository.save(produto));
 	}
