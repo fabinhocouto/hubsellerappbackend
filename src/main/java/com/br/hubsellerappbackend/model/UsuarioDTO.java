@@ -15,4 +15,10 @@ public class UsuarioDTO {
 	String senha; 
 	UserRole role;
 
+	public UsuarioDTO(Usuario usuario) {
+        this.id = usuario.getId();
+        this.nomeCompleto = usuario.getNomeCompleto();
+        this.login = usuario.getLogin();
+        this.role = usuario.getRole();
+    }
 }

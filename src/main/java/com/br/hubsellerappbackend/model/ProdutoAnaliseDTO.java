@@ -35,6 +35,10 @@ public class ProdutoAnaliseDTO {
     private String fotoUrlImgBB;
     
     private UsuarioResumidoDTO usuario;
+    
+    private ProdutoAvaliacaoDTO produtoAvaliacao;
+    
+    private StatusProdutoAnalise status;
 
     private List<ReferenciaProdutoDTO> referencias;
 }

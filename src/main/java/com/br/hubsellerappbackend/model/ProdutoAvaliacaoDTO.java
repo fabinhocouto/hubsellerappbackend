@@ -1,13 +1,18 @@
 package com.br.hubsellerappbackend.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponseDTO {
-	String token;
-	UsuarioDTO usuario;
+@AllArgsConstructor
+@Builder
+public class ProdutoAvaliacaoDTO {
+
+    private Long id;
+
+    private String observacao;
+    
 }

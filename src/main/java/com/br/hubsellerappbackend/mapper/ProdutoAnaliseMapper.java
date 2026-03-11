@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.br.hubsellerappbackend.model.ProdutoAnalise;
 import com.br.hubsellerappbackend.model.ProdutoAnaliseDTO;
+import com.br.hubsellerappbackend.model.ProdutoAvaliacao;
+import com.br.hubsellerappbackend.model.ProdutoAvaliacaoDTO;
 import com.br.hubsellerappbackend.model.ReferenciaProduto;
 import com.br.hubsellerappbackend.model.ReferenciaProdutoDTO;
 import com.br.hubsellerappbackend.model.Usuario;
@@ -32,6 +34,8 @@ public class ProdutoAnaliseMapper {
 	            .fotoUrlImgBB(entity.getFotoUrlImgBB())
 	            .referencias(toReferenciaDTOList(entity.getReferencias()))
 	            .usuario(toUsuarioDTO(entity.getUsuario()))
+	            .produtoAvaliacao(toProdutoAvaliacaoDTO(entity.getProdutoAvaliacao()))
+	            .status(entity.getStatus())
 	            .build();
 	}
 
@@ -71,6 +75,17 @@ public class ProdutoAnaliseMapper {
 	    return UsuarioResumidoDTO.builder()
 	            .id(usuario.getId())
 	            .nomeCompleto(usuario.getNomeCompleto())
+	            .build();
+	}
+	
+	private ProdutoAvaliacaoDTO toProdutoAvaliacaoDTO(ProdutoAvaliacao produtoAvaliacao) {
+
+	    if (produtoAvaliacao == null)
+	        return null;
+
+	    return ProdutoAvaliacaoDTO.builder()
+	            .id(produtoAvaliacao.getId())
+	            .observacao(produtoAvaliacao.getObservacao())
 	            .build();
 	}
 }

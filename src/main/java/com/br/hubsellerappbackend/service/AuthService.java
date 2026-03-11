@@ -8,7 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.br.hubsellerappbackend.model.LoginResponseDTO;
 import com.br.hubsellerappbackend.model.Usuario;
+import com.br.hubsellerappbackend.model.UsuarioDTO;
 import com.br.hubsellerappbackend.repository.UsuarioRepository;
 import com.br.hubsellerappbackend.security.JwtService;
 
@@ -26,11 +28,20 @@ public class AuthService{
         this.jwtService = jwtService;
     }
     
-    public String authenticate(String username, String password) {
+    public LoginResponseDTO authenticate(String username, String password) {
+
         Optional<Usuario> user = userRepository.findByLogin(username);
 
         if (user.isPresent() && passwordEncoder.matches(password, user.get().getSenha())) {
-            return jwtService.generateToken(username);
+
+            Usuario usuario = user.get();
+
+            String token = jwtService.generateToken(usuario.getLogin());
+
+            return new LoginResponseDTO(
+                    token,
+                    new UsuarioDTO(usuario)
+            );
         }
 
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciais inválidas");
