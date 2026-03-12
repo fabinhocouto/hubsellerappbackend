@@ -1,16 +1,15 @@
 package com.br.hubsellerappbackend.job;
 
 import java.time.LocalDateTime;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.br.hubsellerappbackend.client.MercadoLivreClient;
+import com.br.hubsellerappbackend.model.StatusProdutoAnalise;
 import com.br.hubsellerappbackend.model.VisitaReferencia;
 import com.br.hubsellerappbackend.repository.ProdutoAnaliseRepository;
-import com.br.hubsellerappbackend.service.MercadoLivreService;
 import com.br.hubsellerappbackend.utils.ItemUtil;
 
 import jakarta.transaction.Transactional;
@@ -29,9 +28,12 @@ public class AtualizarVisitasJob {
 
         String token = mercadoLivreClient.getValidAccessToken();
 
-        var produtos = produtoRepository.findAll();
+        var produtos = produtoRepository.findByStatusIn(List.of(StatusProdutoAnalise.MONITORANDO, StatusProdutoAnalise.COTANDO));
 
         for (var produto : produtos) {
+        	if (produto.getReferencias() == null) {
+                continue;
+            }
             for (var referencia : produto.getReferencias()) {
 
                 String itemId = ItemUtil.extrairItemId(referencia.getLinkProduto());
