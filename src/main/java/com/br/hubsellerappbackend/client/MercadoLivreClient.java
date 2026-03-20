@@ -77,42 +77,52 @@ public class MercadoLivreClient {
 
     public Integer buscarVisitas(String accessToken, String itemId) {
 
-    	Map<String, Integer> visitas = 
-    	        mercadoLivreWebClient.get()
-    	                .uri("/visits/items?ids={itemId}", itemId)
-    	                .header("Authorization", "Bearer " + accessToken)
-    	                .retrieve()
-    	                .bodyToMono(new ParameterizedTypeReference<Map<String, Integer>>() {})
-    	                .block();
+    	try {
+    		Map<String, Integer> visitas = 
+        	        mercadoLivreWebClient.get()
+        	                .uri("/visits/items?ids={itemId}", itemId)
+        	                .header("Authorization", "Bearer " + accessToken)
+        	                .retrieve()
+        	                .bodyToMono(new ParameterizedTypeReference<Map<String, Integer>>() {})
+        	                .block();
 
-        return visitas.get(itemId);
+            return visitas.get(itemId);
+    	}catch (Exception e) {
+			return 0;
+		}
+    	
     }
     
     public Integer buscarVisitasUltimosQuinzeDias(String accessToken, String itemId) {
 
-        LocalDate ontem = LocalDate.now().minusDays(1);
-        LocalDate quinzeDiasAtras = ontem.minusDays(15);
+    	try {
+    		LocalDate ontem = LocalDate.now().minusDays(1);
+            LocalDate quinzeDiasAtras = ontem.minusDays(15);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        List<Map<String, Object>> resposta =
-                mercadoLivreWebClient.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/items/visits")
-                                .queryParam("ids", itemId)
-                                .queryParam("date_from", quinzeDiasAtras.format(formatter))
-                                .queryParam("date_to", ontem.format(formatter))
-                                .build())
-                        .header("Authorization", "Bearer " + accessToken)
-                        .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
-                        .block();
+            List<Map<String, Object>> resposta =
+                    mercadoLivreWebClient.get()
+                            .uri(uriBuilder -> uriBuilder
+                                    .path("/items/visits")
+                                    .queryParam("ids", itemId)
+                                    .queryParam("date_from", quinzeDiasAtras.format(formatter))
+                                    .queryParam("date_to", ontem.format(formatter))
+                                    .build())
+                            .header("Authorization", "Bearer " + accessToken)
+                            .retrieve()
+                            .bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
+                            .block();
 
-        if (resposta != null && !resposta.isEmpty()) {
-            return (Integer) resposta.get(0).get("total_visits");
-        }
-
-        return 0;
+            if (resposta != null && !resposta.isEmpty()) {
+                return (Integer) resposta.get(0).get("total_visits");
+            }
+    	}catch (Exception e) {
+			return 0;
+		}
+    	
+    	return 0;
+        
     }
     
     public Integer buscarQuantidadeDiasCriacaoAnuncio(String accessToken, String itemId) {

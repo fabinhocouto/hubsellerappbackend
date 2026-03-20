@@ -1,8 +1,11 @@
 package com.br.hubsellerappbackend.service.impl;
 
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -10,10 +13,12 @@ import org.springframework.stereotype.Service;
 import com.br.hubsellerappbackend.mapper.ProdutoAnaliseMapper;
 import com.br.hubsellerappbackend.model.ProdutoAnalise;
 import com.br.hubsellerappbackend.model.ProdutoAnaliseDTO;
+import com.br.hubsellerappbackend.model.StatusProdutoAnalise;
 import com.br.hubsellerappbackend.model.UserRole;
 import com.br.hubsellerappbackend.model.Usuario;
 import com.br.hubsellerappbackend.repository.ProdutoAnaliseRepository;
 import com.br.hubsellerappbackend.repository.UsuarioRepository;
+import com.br.hubsellerappbackend.service.MensagemService;
 import com.br.hubsellerappbackend.service.ProdutoAnaliseService;
 
 import lombok.AllArgsConstructor;
@@ -24,18 +29,22 @@ import lombok.Data;
 @Service
 public class ProdutoAnaliseServiceImpl implements ProdutoAnaliseService{
 	
+	@Autowired
+	private MensagemService mensagemService;
 	private final ProdutoAnaliseRepository repository;
 	private final UsuarioRepository usuarioRepository;
 	private final ProdutoAnaliseMapper produtoAnaliseMapper;
 	
 	public ProdutoAnaliseDTO salvar(ProdutoAnalise produto) {
+		
+		Usuario usuario = null;
 
 	    if (produto.getId() == null) {
 	        String login = SecurityContextHolder.getContext()
 	                .getAuthentication()
 	                .getName();
 
-	        Usuario usuario = usuarioRepository
+	        usuario = usuarioRepository
 	                .findByLogin(login)
 	                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -55,7 +64,13 @@ public class ProdutoAnaliseServiceImpl implements ProdutoAnaliseService{
 	    if (produto.getProdutoAvaliacao() != null) {
 	        produto.getProdutoAvaliacao().setProdutoAnalise(produto);
 	    }
-
+	    
+	    if(usuario != null 
+	    		&& usuario.getId().equals(1) 
+	    		&& Set.of(StatusProdutoAnalise.COTANDO, StatusProdutoAnalise.APROVADO, StatusProdutoAnalise.REPROVADO).contains(produto.getStatus())) {
+	    	mensagemService.enviarMensagemWhatsApp(gerarMensagem(produto.getStatus(), produto.getUsuario().getNomeCompleto(), produto.getDescricao(), produto.getProdutoAvaliacao() != null ? produto.getProdutoAvaliacao().getObservacao(): null));
+	    }
+	    
 	    return produtoAnaliseMapper.toDTO(repository.save(produto));
 	}
 
@@ -96,5 +111,57 @@ public class ProdutoAnaliseServiceImpl implements ProdutoAnaliseService{
 
     public void excluir(Long id) {
         repository.deleteById(id);
+    }
+    
+    public String gerarMensagem(StatusProdutoAnalise status,String nome, String descricao, String observacao) {
+    	
+    	String saudacao = gerarSaudacao(nome);
+
+        String obs = (observacao != null && !observacao.isBlank())
+                ? "\n📝 Observação: " + observacao
+                : "";
+
+        switch (status) {
+
+            case COTANDO:
+            	return saudacao + "\n\n" +
+                "💰 *Produto em Cotação*\n\n" +
+                "O produto abaixo avançou para a fase de cotação.\n\n" +
+                "📦 *Produto:* " + descricao + "\n\n" +
+                obs;
+
+            case REPROVADO:
+            	return saudacao + "\n\n" +
+                "❌ *Produto Reprovado na Análise*\n\n" +
+                "Após análise o produto não foi aprovado para importação.\n\n" +
+                "📦 *Produto:* " + descricao + "\n\n" +
+                obs;
+
+            case APROVADO:
+            	return saudacao + "\n\n" +
+                "✅ *Produto Aprovado para Compra*\n\n" +
+                "A análise foi concluída e o produto foi aprovado para importação.\n\n" +
+                "📦 *Produto:* " + descricao + "\n\n" +
+                obs;
+
+            default:
+                return "";
+        }
+    }
+    
+    public String gerarSaudacao(String nome) {
+
+        int hora = LocalTime.now().getHour();
+        String saudacao;
+
+        if (hora < 12) {
+            saudacao = "Bom dia";
+        } else if (hora < 18) {
+            saudacao = "Boa tarde";
+        } else {
+            saudacao = "Boa noite";
+        }
+
+        return saudacao + ", " + nome + "! ";
     }
 }
