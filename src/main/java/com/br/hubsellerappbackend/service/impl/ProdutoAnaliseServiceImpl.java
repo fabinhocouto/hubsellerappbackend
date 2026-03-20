@@ -66,7 +66,7 @@ public class ProdutoAnaliseServiceImpl implements ProdutoAnaliseService{
 	    }
 	    
 	    if(usuario != null 
-	    		&& usuario.getId().equals(1) 
+	    		&& Integer.valueOf(1).equals(usuario.getId())
 	    		&& Set.of(StatusProdutoAnalise.COTANDO, StatusProdutoAnalise.APROVADO, StatusProdutoAnalise.REPROVADO).contains(produto.getStatus())) {
 	    	mensagemService.enviarMensagemWhatsApp(gerarMensagem(produto.getStatus(), produto.getUsuario().getNomeCompleto(), produto.getDescricao(), produto.getProdutoAvaliacao() != null ? produto.getProdutoAvaliacao().getObservacao(): null));
 	    }
