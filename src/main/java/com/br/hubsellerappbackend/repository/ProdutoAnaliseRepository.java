@@ -11,7 +11,7 @@ import com.br.hubsellerappbackend.model.Usuario;
 
 public interface ProdutoAnaliseRepository extends JpaRepository<ProdutoAnalise, Long> {
 
-	List<ProdutoAnalise> findByUsuario(Usuario usuario, Sort sort);
+	List<ProdutoAnalise> findByUsuario(Usuario usuario);
 	
 	List<ProdutoAnalise> findByStatusIn(List<StatusProdutoAnalise> status);
 

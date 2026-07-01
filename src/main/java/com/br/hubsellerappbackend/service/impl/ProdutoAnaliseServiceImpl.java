@@ -1,7 +1,9 @@
 package com.br.hubsellerappbackend.service.impl;
 
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,21 +84,33 @@ public class ProdutoAnaliseServiceImpl implements ProdutoAnaliseService{
 		Usuario usuario = usuarioRepository
 		        .findByLogin(login)
 		        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+		
+		Map<StatusProdutoAnalise, Integer> ordemStatus = Map.of(
+			    StatusProdutoAnalise.MONITORANDO, 1,
+			    StatusProdutoAnalise.COTANDO,      2,
+			    StatusProdutoAnalise.APROVADO,     3,
+			    StatusProdutoAnalise.REPROVADO,    4
+			);
 
 		if (UserRole.ADMIN.equals(usuario.getRole())) {
 
-		    return repository.findAll(Sort.by(Sort.Direction.DESC, "id"))
+		    return repository.findAll()
 		            .stream()
+		            .sorted(
+		                    Comparator.comparing((ProdutoAnalise p) -> ordemStatus.get(p.getStatus()))
+		                        .thenComparing(ProdutoAnalise::getId, Comparator.reverseOrder())
+		                )
 		            .map(produtoAnaliseMapper::toDTO)
 		            .collect(Collectors.toList());
 
 		} else {
 
-		    return repository.findByUsuario(
-		                    usuario,
-		                    Sort.by(Sort.Direction.DESC, "id")
-		            )
+		    return repository.findByUsuario(usuario)
 		            .stream()
+		            .sorted(
+		                    Comparator.comparing((ProdutoAnalise p) -> ordemStatus.get(p.getStatus()))
+		                        .thenComparing(ProdutoAnalise::getId, Comparator.reverseOrder())
+		                )
 		            .map(produtoAnaliseMapper::toDTO)
 		            .collect(Collectors.toList());
 		}
