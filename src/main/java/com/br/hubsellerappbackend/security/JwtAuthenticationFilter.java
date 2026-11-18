@@ -23,20 +23,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public JwtAuthenticationFilter(JwtService jwtService) {
         this.jwtService = jwtService;
     }
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getRequestURI().endsWith("/api/integracoes/avantpro/token");
+    }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
-    	String token = request.getHeader("Authorization");
-    	System.out.println("Header recebido: " + request.getHeader("Authorization"));
-    	
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain) throws ServletException, IOException {
+
+        String token = request.getHeader("Authorization");
+
         if (token != null) {
             String username = jwtService.validateToken(token);
-            System.out.println("Username retornado: " + username);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            if (username != null &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
+
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(username, null, null);
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request));
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

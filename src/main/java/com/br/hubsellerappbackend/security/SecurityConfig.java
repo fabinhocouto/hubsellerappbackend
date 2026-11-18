@@ -27,6 +27,7 @@ public class SecurityConfig {
             	.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/autenticacao/login").permitAll()
                 .requestMatchers("/autenticacao/criar").permitAll()
+                .requestMatchers("/api/integracoes/avantpro/token").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sem sessão
