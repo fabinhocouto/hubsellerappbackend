@@ -34,6 +34,8 @@ public class AvantproTokenServiceImpl implements AvantproTokenService {
                 .findFirst()
                 .orElse(new AvantproToken());
 
+        token = token.replaceFirst("(?i)^Bearer\\s+", "").trim();
+        
         avantproToken.setToken(token);
 
         repository.save(avantproToken);
