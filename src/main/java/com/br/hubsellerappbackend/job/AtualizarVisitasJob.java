@@ -29,7 +29,7 @@ public class AtualizarVisitasJob {
     private final MercadoLivreClient mercadoLivreClient;
     private final AvantproService avantproService;
     
-    @Scheduled(cron = "0 30 6 * * *")
+    //@Scheduled(cron = "0 30 6 * * *")
     public void atualizarVisitas() {
 
         String token = mercadoLivreClient.getValidAccessToken();
@@ -56,7 +56,7 @@ public class AtualizarVisitasJob {
             }
         }
 
-        //produtoRepository.saveAll(produtos);
+        produtoRepository.saveAll(produtos);
     }
     
     
@@ -85,7 +85,7 @@ public class AtualizarVisitasJob {
             }
         }
 
-        //produtoRepository.saveAll(produtos);
+        produtoRepository.saveAll(produtos);
     }
 
 }
