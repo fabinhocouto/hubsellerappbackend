@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import com.br.hubsellerappbackend.service.AvantproService;
@@ -33,19 +34,30 @@ public class AvantproServiceImpl implements AvantproService {
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<JsonNode> response = restTemplate.exchange(
-            url,
-            HttpMethod.GET,
-            entity,
-            JsonNode.class
-        );
+        try {
+            ResponseEntity<JsonNode> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                JsonNode.class
+            );
 
-        JsonNode body = response.getBody();
+            JsonNode body = response.getBody();
 
-        if (body == null || body.path("data").path("visits").isMissingNode()) {
-            throw new RuntimeException("Número de visitas não encontrado na resposta Avantpro.");
+            if (body == null || body.path("data").path("visits").isMissingNode()) {
+                return 0;
+            }
+
+            return body.path("data").path("visits").asInt();
+
+        } catch (HttpStatusCodeException e) {
+
+            if (e.getStatusCode().value() == 401 ||
+                e.getStatusCode().value() == 403) {
+                return -1;
+            }
+
+            return 0;
         }
-
-        return body.path("data").path("visits").asInt();
     }
 }

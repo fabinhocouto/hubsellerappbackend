@@ -1,5 +1,6 @@
 package com.br.hubsellerappbackend.job;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -60,28 +61,59 @@ public class AtualizarVisitasJob {
     }
     
     
-    @Scheduled(cron = "0 30 17 * * *")
+    @Scheduled(cron = "0 0 10 * * *")
     public void atualizarVisitasAvantPro() {
+        executarAtualizacaoVisitasAvantPro();
+    }
+
+    public void executarAtualizacaoVisitasAvantPro() {
 
         Optional<AvantproToken> token = avantproRepository.findFirstByOrderByIdAsc();
 
-        var produtos = produtoRepository.findByStatusIn(List.of(StatusProdutoAnalise.MONITORANDO, StatusProdutoAnalise.COTANDO));
+        if (token.isEmpty()) {
+            return;
+        }
+
+        LocalDate hoje = LocalDate.now();
+
+        LocalDateTime inicioDia = hoje.atStartOfDay();
+        LocalDateTime inicioAmanha = hoje.plusDays(1).atStartOfDay();
+
+        var produtos = produtoRepository.buscarProdutosSemVisitasHoje(
+            List.of(StatusProdutoAnalise.MONITORANDO, StatusProdutoAnalise.COTANDO),
+            inicioDia,
+            inicioAmanha
+        );
 
         for (var produto : produtos) {
-        	if (produto.getReferencias() == null) {
+
+            if (produto.getReferencias() == null) {
                 continue;
             }
+
             for (var referencia : produto.getReferencias()) {
 
                 String itemId = ItemUtil.extrairItemId(referencia.getLinkProduto());
-                Integer visitas = avantproService.consultarProduto(itemId, token.get().getToken());
-                VisitaReferencia novaVisita = VisitaReferencia.builder()
-                        .dataVerificacao(LocalDateTime.now())
-                        .numeroVisitas(visitas)
-                        .referenciaProduto(referencia)
-                        .build();
 
-                referencia.getVisitas().add(novaVisita);
+                if (itemId == null) {
+                    continue;
+                }
+
+                Integer visitas = avantproService.consultarProduto(
+                    itemId,
+                    token.get().getToken()
+                );
+                
+                if(visitas != -1) {
+                	VisitaReferencia novaVisita = VisitaReferencia.builder()
+                            .dataVerificacao(LocalDateTime.now())
+                            .numeroVisitas(visitas)
+                            .referenciaProduto(referencia)
+                            .build();
+
+                    referencia.getVisitas().add(novaVisita);	
+                }
+                
             }
         }
 

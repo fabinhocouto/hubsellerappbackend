@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.br.hubsellerappbackend.job.AtualizarVisitasJob;
 import com.br.hubsellerappbackend.model.AvantproTokenDTO;
 import com.br.hubsellerappbackend.service.AvantproTokenService;
 
@@ -19,9 +20,12 @@ import jakarta.validation.Valid;
 public class AvantproTokenController {
 
     private final AvantproTokenService service;
+    private final AtualizarVisitasJob atualizarVisitasJob;
 
-    public AvantproTokenController(AvantproTokenService service) {
+    public AvantproTokenController(AvantproTokenService service,
+    		AtualizarVisitasJob atualizarVisitasJob) {
         this.service = service;
+        this.atualizarVisitasJob = atualizarVisitasJob;
     }
 
     @PostMapping("/token")
@@ -32,6 +36,8 @@ public class AvantproTokenController {
             (request.getAccessToken() != null ? "SIM" : "NÃO"));
 
         service.salvarToken(request.getAccessToken());
+        
+        atualizarVisitasJob.executarAtualizacaoVisitasAvantPro();
 
         Map<String, Object> resposta = new HashMap<>();
         resposta.put("sucesso", true);
