@@ -5,4 +5,6 @@ public interface AvantproTokenService {
     void salvarToken(String token);
 
     String obterToken();
+    
+    String refreshToken();
 }

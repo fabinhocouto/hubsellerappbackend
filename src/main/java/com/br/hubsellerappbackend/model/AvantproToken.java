@@ -1,6 +1,8 @@
 
 package com.br.hubsellerappbackend.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,4 +22,13 @@ public class AvantproToken {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String token;
+    
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken;
+
+    @Column(name = "data_expiracao")
+    private LocalDateTime dataExpiracao;
+
+    @Column(name = "data_atualizacao", nullable = false)
+    private LocalDateTime dataAtualizacao;
 }

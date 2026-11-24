@@ -12,9 +12,9 @@ import com.br.hubsellerappbackend.client.MercadoLivreClient;
 import com.br.hubsellerappbackend.model.AvantproToken;
 import com.br.hubsellerappbackend.model.StatusProdutoAnalise;
 import com.br.hubsellerappbackend.model.VisitaReferencia;
-import com.br.hubsellerappbackend.repository.AvantproTokenRepository;
 import com.br.hubsellerappbackend.repository.ProdutoAnaliseRepository;
 import com.br.hubsellerappbackend.service.AvantproService;
+import com.br.hubsellerappbackend.service.AvantproTokenService;
 import com.br.hubsellerappbackend.utils.ItemUtil;
 
 import jakarta.transaction.Transactional;
@@ -26,9 +26,9 @@ import lombok.RequiredArgsConstructor;
 public class AtualizarVisitasJob {
 
     private final ProdutoAnaliseRepository produtoRepository;
-    private final AvantproTokenRepository avantproRepository;
     private final MercadoLivreClient mercadoLivreClient;
     private final AvantproService avantproService;
+    private final AvantproTokenService avantproTokenService;
     
     //@Scheduled(cron = "0 30 6 * * *")
     public void atualizarVisitas() {
@@ -61,14 +61,14 @@ public class AtualizarVisitasJob {
     }
     
     
-    @Scheduled(cron = "0 0 10 * * *")
+    @Scheduled(cron = "0 0 09 * * *")
     public void atualizarVisitasAvantPro() {
         executarAtualizacaoVisitasAvantPro();
     }
 
     public void executarAtualizacaoVisitasAvantPro() {
 
-        Optional<AvantproToken> token = avantproRepository.findFirstByOrderByIdAsc();
+        String token = avantproTokenService.obterToken();
 
         if (token.isEmpty()) {
             return;
@@ -101,7 +101,7 @@ public class AtualizarVisitasJob {
 
                 Integer visitas = avantproService.consultarProduto(
                     itemId,
-                    token.get().getToken()
+                    token
                 );
                 
                 if(visitas != -1) {
